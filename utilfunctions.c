@@ -1,3 +1,6 @@
+// Adam Rodriguez, James Jessen, Forrest Weston
+// Team: TCP
+// Computer Networks - Project 1
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -30,7 +33,7 @@ int readNl(int socket, char *msg)
     char buf[2]; //allocate a buffer to put partial message from socket into
     
     strcpy(msg, ""); // begin msg with empty string
-    while ((msgLen = read(socket, buf, 1)) > 0) // continue reading from socket if there is more data
+    while ((msgLen = recv(socket, buf, 1, 0)) > 0) // continue reading from socket if there is more data
     {
         strncat(msg, buf, msgLen); // concatenate buf onto final mesage
         totalLen += msgLen;
@@ -45,7 +48,7 @@ int readNl(int socket, char *msg)
 }
 
 // sends to socket the message length as 2-byte binary num and then send actual message after without a null terminating char
-// returns -1 if write() failed; otherwise 0 for success
+// returns -1 if send() failed; otherwise 0 for success
 int writeLen(int socket, char *msg, int len)
 {
     uint16_t network_byte_order;
@@ -53,13 +56,13 @@ int writeLen(int socket, char *msg, int len)
     network_byte_order = htons(len);
 
     // send length of message
-    if ((write(socket, &network_byte_order, sizeof(uint16_t))) < 0)
+    if ((send(socket, &network_byte_order, sizeof(uint16_t), 0)) < 0)
     {
         return -1;
     }
 
     // send message without null terminating char
-    if ((write(socket, msg, len)) < 0)
+    if ((send(socket, msg, len, 0)) < 0)
     {
         return -1;
     }
@@ -79,16 +82,16 @@ int readLen(int socket, char *msg, int readAmount)
     read(socket, &msgLen, sizeof(uint16_t));
     msgLen = ntohs(msgLen); // convert from network byte order
 
-    printf("pw len: %d\n", msgLen);
+    printf("message len: %d\n", msgLen);
 
     // Read in message
     strcpy(msg, "");
-    while ( (rcvLen = read(socket, buf, readAmount)) > 0)
+    while ( (rcvLen = recv(socket, buf, readAmount, 0)) > 0)
     {
         totalLen += rcvLen;
         strncat(msg, buf, rcvLen);
 
-        printf("len = %d\n", rcvLen);
+        printf("  rcvLen = %d\n", rcvLen);
 
         if (totalLen >= msgLen) // stop reading once total message length is greater/equal to received len
         {

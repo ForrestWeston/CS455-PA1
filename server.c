@@ -1,3 +1,6 @@
+// Adam Rodriguez, James Jessen, Forrest Weston
+// Team: TCP
+// Computer Networks - Project 1
 #include "utilfunctions.c"
 
 #define BUFSIZE 512
@@ -6,7 +9,7 @@ int isPersonValid(char *id, char *name);
 int isPasswordValid(char *pw, int pw_len, int p_index);
 
 char *id_table[5] = {"11334", "12345", "54321", "24135", "13524"};
-char *name_table[5] = {"adam", "doug", "emily", "bob", "james"};
+char *name_table[5] = {"adam", "doug", "forrest", "bob", "james"};
 char *pw_table[5] = {"pw", "password", "admin", "host", "bond"};
 
 int main(int argc, char *argv[])
@@ -27,7 +30,7 @@ int main(int argc, char *argv[])
     // create socket for server
     if ((sockFd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-        printf("socket() failed. exiting...");
+        printf("socket() failed. exiting...\n");
         return -1;
     }
 
@@ -39,14 +42,14 @@ int main(int argc, char *argv[])
     // bind server address to socket
     if ((bind(sockFd, (struct sockaddr*)&serv_addr, sizeof(serv_addr) )) == -1)
     {
-        printf("bind() failed. exiting...");
+        printf("bind() failed. exiting...\n");
         return -1;
     }
 
     // set socket to listen to max 1 connection
     if ((listen(sockFd, 1)) == -1)
     {
-        printf("listen() failed. exiting...");
+        printf("listen() failed. exiting...\n");
         return -1;
     }
 
@@ -59,7 +62,7 @@ int main(int argc, char *argv[])
         clientLen = sizeof(client_addr);
         if ((connFd = accept(sockFd, (struct sockaddr*)&client_addr, &clientLen)) < 0)
         {
-            printf("accept() failed. exiting...");
+            printf("accept() failed. exiting...\n");
             return -1;
         }
 
@@ -70,7 +73,7 @@ int main(int argc, char *argv[])
         msgLen ++; // Add 1 to have message length include '\n'
         
         // Send welcome message to client
-        if ((write(connFd, message, msgLen)) != msgLen)
+        if ((send(connFd, message, msgLen, 0)) != msgLen)
         {
             printf("write() failed... exiting..\n");
             close(connFd);
@@ -81,8 +84,6 @@ int main(int argc, char *argv[])
         
         // read ID number from client
         readNl(connFd, id);
-
-        printf("read id... waiting on name..\n");
 
         // Read name from client
         readNl(connFd, name);
@@ -100,7 +101,7 @@ int main(int argc, char *argv[])
             msgLen ++; // Add 1 to have message length include '\n'
             
             // Send Failure message to client
-            if ((write(connFd, message, msgLen)) != msgLen)
+            if ((send(connFd, message, msgLen, 0)) != msgLen)
             {
                 printf("write() failed... exiting..\n");
                 return -1;
@@ -119,7 +120,7 @@ int main(int argc, char *argv[])
         msgLen ++; // Add 1 to have message length include '\n'
         
         // Send Success message to client
-        if ((write(connFd, message, msgLen)) != msgLen)
+        if ((send(connFd, message, msgLen, 0)) != msgLen)
         {
             printf("write() failed... exiting..\n");
             return -1;

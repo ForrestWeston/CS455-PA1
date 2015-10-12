@@ -1,3 +1,6 @@
+// Adam Rodriguez, James Jessen, Forrest Weston
+// Team: TCP
+// Computer Networks - Project 1
 #include "utilfunctions.c"
 
 #define BUFSIZE 512
@@ -19,12 +22,17 @@ int main(int argc, char *argv[])
     
     // get portNum and IP from command line
     portNumber = atoi(argv[2]);
-    hostToIp(argv[1], ip);
+    
+    if (hostToIp(argv[1], ip) < 0)
+    {
+        printf("failed to get IP address. Exiting...\n");
+        return -1;
+    }
     
     // Create socket for client
     if ((sockFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
     {
-        printf("socket() failed. exiting...");
+        printf("socket() failed. Exiting...");
         return -1;
     }
     
@@ -36,7 +44,7 @@ int main(int argc, char *argv[])
     // Attempt to connect to server
     if ((connect(sockFd, (struct sockaddr*)&serv_addr, sizeof(serv_addr))) < 0)
     {
-        printf("connect() failed. exiting...");
+        printf("connect() failed. Exiting...");
         return -1;
     }
     
@@ -60,7 +68,6 @@ int main(int argc, char *argv[])
     scanf("%s %s", buf, buf2);
     
     msgLen = strlen(buf);
-    printf("msgLen = %d\n", msgLen);
     buf[msgLen] = '\n'; // replace '\0' with '\n'
     
     msgLen = strlen(buf2);
@@ -68,17 +75,19 @@ int main(int argc, char *argv[])
     
     // Send id number to server
     msgLen = nlStrLen(buf) + 1;
-    if ((write(sockFd, buf, msgLen)) != msgLen)
+    if ((send(sockFd, buf, msgLen, 0)) != msgLen)
     {
-        printf("write() failed... exiting..\n");
+        printf("send() failed... exiting..\n");
+        close(sockFd);
         return -1;
     }
     
     // Send name to server
     msgLen = nlStrLen(buf2) + 1;
-    if ((write(sockFd, buf2, msgLen)) != msgLen)
+    if ((send(sockFd, buf2, msgLen, 0)) != msgLen)
     {
-        printf("write() failed... exiting..\n");
+        printf("send() failed... exiting..\n");
+        close(sockFd);
         return -1;
     }
     
