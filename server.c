@@ -12,6 +12,7 @@ int main(int argc, char* argv[])
 	int serverfd, port, err;
 	struct sockaddr_in server_addr;
 	struct client table[3];
+	const char sentinel = '\n';
 
 	strncpy(table[0].name, "Adam", 4);
 	strncpy(table[0].pswd, "password", 8);
@@ -70,7 +71,7 @@ int main(int argc, char* argv[])
 		}
 
 		send_sentinel(clientfd, "Welcome", '\n');
-		clientID = atoi(recv_sentinel(clientfd, SENTINEL));
+		clientID = atoi(recv_sentinel(clientfd, sentinel));
 		printf("ID: %d\n", clientID);
 
 		clientName = recv_sentinel(clientfd, '\n');
