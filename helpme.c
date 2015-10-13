@@ -26,9 +26,14 @@ int send_length(int socket, char* msg)
 	char buff[BUFFSIZE];
 	int err;
 	int msgSize = strlen(msg);
-	strncpy(buff, msg, msgSize);
+	memcpy(&buff[2], msg, msgSize);
 
-	err = send(socket, buff, msgSize, 0);
+	uint16_t size = msgSize;
+	memcpy(buff, &size, sizeof(uint16_t));
+	buff[2+msgSize] = 0;
+
+	// send 2 byte length, entire message, and null byte
+	err = send(socket, buff, msgSize + 3, 0);
 	if (err < 0) {
 		return -1;
 	}
@@ -57,26 +62,45 @@ char* recv_sentinel(int socket, const char sentinel)
 
 }
 
+int recv_bytes(int fd, char *buf, int len) {
+	int recvd = 0;
+	while (recvd < len) {
+		int n = recv(fd, &buf[recvd], len - recvd, 0);
+		if (n < 0) {
+			return n;
+		}
+
+		recvd += n;
+	}
+	return recvd;
+}
+
 char* recv_length(int socket)
 {
 	char buff[BUFFSIZE];
 	char* msg;
-	char* msgRaw = buff + sizeof(uint16_t);
 	uint16_t size;
 	int err;
 
-	err = recv(socket, buff, BUFFSIZE, 0);
+	// recieve length
+	err = recv_bytes(socket, buff, 2);
 	if (err < 0) {
 		return NULL;
 	}
+
 	size = *((uint16_t*)buff);
-	size = ntohs(size);
-	msg = malloc(size);
+	printf("size is %d\n", size);
+
+	msg = malloc(size + 1);
 	if (msg < 0) {
 		return NULL;
 	}
-	memcpy(msg, msgRaw, size);
-	msg[size-1] = '\0';
+
+	err = recv_bytes(socket, msg, size);
+	if (err < 0) {
+		return NULL;
+	}
+
 	return msg;
 }
 

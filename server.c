@@ -95,6 +95,7 @@ int main(int argc, char* argv[])
 		} else {
 			send_length(clientfd, "Password incorrect");
 		}
+		sleep(10);
 		close(clientfd);
 
 	}
