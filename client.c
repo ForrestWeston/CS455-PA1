@@ -29,7 +29,8 @@ int main(int argc, char* argv[])
 	}
 	memset(&server_addr, 0, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
-	server_addr.sin_addr.s_addr = inet_addr(argv[1]);
+	memcpy(&server_addr.sin_addr, server->h_addr_list[0], server->h_length);
+	server_addr.sin_port = htons(atoi(argv[2]));
 
 	err = connect(sockfd, (struct  sockaddr *) &server_addr, sizeof(server_addr));
 	if (err < 0) {

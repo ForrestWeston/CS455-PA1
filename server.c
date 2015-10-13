@@ -14,16 +14,16 @@ int main(int argc, char* argv[])
 	struct client table[3];
 	const char sentinel = '\n';
 
-	strncpy(table[0].name, "Adam", 4);
-	strncpy(table[0].pswd, "password", 8);
+	strcpy(table[0].name, "Adam");
+	strcpy(table[0].pswd, "password");
 	table[0].ID = 0;
 
-	strncpy(table[1].name, "James", 5);
-	strncpy(table[1].pswd, "password", 8);
+	strcpy(table[1].name, "James");
+	strcpy(table[1].pswd, "password");
 	table[1].ID = 1;
 
-	strncpy(table[2].name, "Forrest", 7);
-	strncpy(table[2].pswd, "password", 8);
+	strcpy(table[2].name, "Forrest");
+	strcpy(table[2].pswd, "password");
 	table[2].ID = 2;
 
 
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 		clientName = recv_sentinel(clientfd, '\n');
 		printf("Name: %s\n", clientName);
 
-		if (clientID < sizeof(table) &&
+		if (clientID < 3 &&
 			clientID >= 0 &&
 			strcmp(table[clientID].name, clientName) == 0) {
 			send_sentinel(clientfd, "Success", '\n');
